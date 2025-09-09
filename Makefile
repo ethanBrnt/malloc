@@ -6,7 +6,7 @@
 #    By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/07 12:48:48 by eburnet           #+#    #+#              #
-#    Updated: 2025/09/01 10:05:11 by eburnet          ###   ########.fr        #
+#    Updated: 2025/09/09 11:45:35 by eburnet          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,15 +19,14 @@ OBJS     = $(SRC:.c=.o)
 HEADERS  = malloc.h
 
 CC       = cc
-CFLAGS   = -Wall -Wextra -Werror
-
+CFLAGS   = -Wall -Wextra -Werror -fPIC -g3
 LIBFT_DIR = ./libft
 LIBFT     = $(LIBFT_DIR)/libft.a
 
 all: $(NAME) $(ALIAS)
 
 $(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJS) -L$(LIBFT_DIR) -lft -o $@
+	$(CC) -shared $(CFLAGS) $(OBJS) -L$(LIBFT_DIR) -lft -o $@
 
 $(ALIAS): $(NAME)
 	ln -sf $(NAME) $(ALIAS)
