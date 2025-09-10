@@ -16,42 +16,16 @@
 
 int main(void)
 {
-    char *p = my_malloc(100); // utilise ton malloc dans le .so
-    if (!p) 
+    for (size_t i = 0; i < 120; i++)
     {
-        printf("NULL\n");
-        return 1;
+        char *p = my_malloc(100); // utilise ton malloc dans le .so
+        if (!p) 
+            return 1;
+        strcpy(p, "Salut guys");
+        printf("%ld: %s\n", i, p);
     }
-    else
-        printf("OK\n");
-
-    char *p2 = my_malloc(100); // utilise ton malloc dans le .so
-    if (!p2) 
-    {
-        printf("NULL2\n");
-        return 1;
-    }
-    else
-        printf("OK2\n");
-    char *p3 = my_malloc(10000); // utilise ton malloc dans le .so
-    if (!p3) 
-    {
-        printf("NULL3\n");
-        return 1;
-    }
-    else
-        printf("OK3\n");
-
-  char *p4 = my_malloc(1000); // utilise ton malloc dans le .so
-    if (!p4) 
-    {
-        printf("NULL4\n");
-        return 1;
-    }
-    else
-        printf("OK4\n");
-    strcpy(p, "Salut guys");
-    printf("%s\n", p);
+    
+   
 
     return 0;
 }

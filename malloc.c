@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 09:58:49 by eburnet           #+#    #+#             */
-/*   Updated: 2025/09/09 15:01:30 by eburnet          ###   ########.fr       */
+/*   Updated: 2025/09/10 14:24:10 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ struct allocs {
 	struct zones	*large;
 	size_t N;
 	size_t M;
+	int n;
+	int m;
 };
 
 struct zones {
@@ -37,9 +39,8 @@ struct header {
 	void	*next;
 };
 
-void *findCut(struct header *actualHead, int sizeNeed, int toAlloc, void *posX)
+void *remainingCut(struct header *actualHead, int sizeNeed, int toAlloc, void *posX)
 {
-	ft_putstr("findCut\n");
 	ptrdiff_t remains;
 	size_t remaining_space;
 	struct header *prevHeader;
@@ -51,22 +52,19 @@ void *findCut(struct header *actualHead, int sizeNeed, int toAlloc, void *posX)
 			remains = (char*)all->N - (char*)posX ;
 		else
 			remains = (char*)all->M - (char*)posX;
-		ft_putstr("ici\n");
 		if (remains < 0)
 			ft_putstr_fd("Error: findCut conversion", 2), exit(1);
 		remaining_space = (size_t)remains;
 	}
 	else
-		remaining_space = toAlloc * 2;
-	ft_putstr("here\n");
+		remaining_space = toAlloc;
+
 	int toAdd = 8 - (sizeNeed % 8);
-	int roundSize;
 	if (toAdd == 8)
 		toAdd = 0;
-	roundSize = sizeNeed + toAdd;
+	int roundSize = sizeNeed + toAdd;
 	if (remaining_space < (roundSize + sizeof(struct header)))
 		return (NULL);
-	ft_putstr("there\n");
 
 	struct header *newHeader = (struct header *)posX;
 	newHeader->is_free = 0;
@@ -74,13 +72,11 @@ void *findCut(struct header *actualHead, int sizeNeed, int toAlloc, void *posX)
 	newHeader->next = NULL;
 	if (actualHead != NULL)
 		prevHeader->next = newHeader;
-	ft_putstr("before last return\n");
 	return ((char*)newHeader + sizeof(struct header));
 }
 
 void *findFreeZone(int sizeNeed, struct header *actualH)
 {
-	ft_putstr("findFreeZone\n");
 	int toAdd = 8 - (sizeNeed % 8);
 	int roundSize;
 
@@ -112,10 +108,7 @@ void *findFreeSpace(int sizeNeed, int toAlloc)
 	else
 		actualZone = all->small;
 	if (actualZone == NULL)
-	{
-		ft_putstr("actualZone is NULL\n");
-		return (NULL);
-	}
+		return (ft_putstr("actualZone is NULL\n"), NULL);
 	while (actualZone != NULL) {
 		actualHead = actualZone->header;
 		while (actualHead != NULL) {
@@ -126,7 +119,7 @@ void *findFreeSpace(int sizeNeed, int toAlloc)
 			actualHead = actualHead->next;
 		}
 		res = NULL;
-		res = findCut(prevHead, sizeNeed, toAlloc, actualZone->mmapStart);
+		res = remainingCut(prevHead, sizeNeed, toAlloc, actualZone->mmapStart);
 		if (res != NULL)
 			return (res);
 		actualZone = actualZone->next;
@@ -134,77 +127,65 @@ void *findFreeSpace(int sizeNeed, int toAlloc)
 	return (NULL);
 }
 
-// TODO opti if else
+void	initAllocs()
+{
+	if (!all) {
+		all = mmap(NULL, sizeof(struct allocs), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (all == MAP_FAILED)
+		ft_putstr_fd("Error: mmap struc alloc", 2), exit(1);
+	}
+	const long pageSize = sysconf(_SC_PAGESIZE);
+	all->m = 4096;
+	all->n = 512;
+	all->N = (((all->n * 100) + pageSize - 1) / pageSize) * pageSize; // n x100 arrondie au superieur
+	all->M = (((all->m * 100) + pageSize - 1) / pageSize) * pageSize; // m x100 arrondie au superieur
+
+}
+
+
 void *my_malloc(size_t size)
 {
-	// si size == 1 == 1 byte (octet), 8 bits
-	ft_putstr("mon malloc\n");
-	if (!all) {
-		all = mmap(NULL, sizeof(struct allocs), PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (all == MAP_FAILED)
-			ft_putstr_fd("Error: mmap struc alloc", 2), exit(1);
-	}
-	const int n = 512;
-	const int m = 4096;
-	const long pageSize = sysconf(_SC_PAGESIZE);
-	all->M = (((m * 100) + pageSize - 1) / pageSize) * pageSize; // m x100 arrondie au superieur
-	all->N = (((n * 100) + pageSize - 1) / pageSize) * pageSize; // n x100 arrondie au superieur
-	void *res;
-	int toAlloc = m;
-	struct zones *lastZone = all->small;
-	struct zones *newZone = mmap(NULL, sizeof(struct zones), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	initAllocs();
+ 	struct zones *newZone = mmap(NULL, sizeof(struct zones), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 	if (newZone == MAP_FAILED)
 		ft_putstr_fd("Error: mmap newzone", 2), exit(1);
+	struct zones *lastZone = all->tiny;
+	int toAlloc = all->n;
+	void *alocZone;
+	void *res;
 
-	if ((int)size <= m) {
-		if ((int)size <= n)
-			toAlloc = n, lastZone = all->tiny, ft_putstr("---TINY---\n");
+	if ((int)size <= all->m)
+		toAlloc = all->m, lastZone = all->small;
+	else if ((int)size > all->m)
+		toAlloc = size, lastZone = all->large;
+	if (size < all->m)
+	{
 		res = findFreeSpace(size, toAlloc);
 		if (res != NULL)
 			return(res);
-		void *alocZone = mmap(NULL, toAlloc , PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-		if (alocZone == MAP_FAILED)
-			ft_putstr_fd("Error: mmap alocZone", 2), exit(1);
-		newZone->mmapStart = alocZone;
-		newZone->size = toAlloc;
-		newZone->header = NULL;
-		newZone->next = NULL;
-		if (!lastZone) {
-			ft_putstr("Premiere zone de cette taille\n");
-			if ((int)size <= n)
-				all->tiny = newZone;
-			else
-				all->small = newZone;
-		} else {
-			while (lastZone->next)
-				lastZone = lastZone->next;
-			lastZone->next = newZone;
-		}
+	}
+	alocZone = mmap(NULL, toAlloc , PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	if (alocZone == MAP_FAILED)
+		ft_putstr_fd("Error: mmap alocZone", 2), exit(1);
+	newZone->mmapStart = alocZone;
+	newZone->size = toAlloc;
+	newZone->header = NULL;
+	newZone->next = NULL;
+	if (!lastZone) {
+		ft_putstr("Premiere zone de cette taille\n");
+		if ((int)size <= all->n)
+			all->tiny = newZone;
+		else if (((int)size <= all->m))
+			all->small = newZone;
+		else
+			all->large = newZone;
+	} else {
+		while (lastZone->next)
+			lastZone = lastZone->next;
+		lastZone->next = newZone;
+	}
+	if (size > all->m)
+		return (alocZone);
+	else
 		return(findFreeSpace(size, toAlloc));
-	}
-	else {
-		ft_putstr("---LARGE---\n");
-		lastZone = all->large;
-		void *largeZone = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-		if (largeZone == MAP_FAILED)
-			ft_putstr_fd("Error: mmap largezone", 2), exit(1);
-
-		newZone->mmapStart = largeZone;
-		newZone->size = size;
-		newZone->header = NULL;
-		newZone->next = NULL;
-		if (!lastZone) {
-			ft_putstr("Premiere zone large\n");
-			if ((int)size <= n)
-				all->tiny = newZone;
-			else
-				all->small = newZone;
-		} else {
-			while (lastZone->next)
-				lastZone = lastZone->next;
-			lastZone->next = newZone;
-		}
-		return (largeZone);
-	}
 }
