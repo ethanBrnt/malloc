@@ -10,46 +10,45 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "malloc.h"
 #include <stdio.h>
 #include <string.h>
-
-/* 
-    TODO
-    test malloc null
-    test bcp de malloc
-    test malloc BIIIIG size
-
-    test free null
-    test free invalid pointer
-*/
+#include "malloc.h"
 
 int main(void)
 {
-    char *p;
-    for (size_t i = 0; i < 101; i++)
-    {
-        p = my_malloc(512);
-        if (!p) 
-            return 1;
-        strcpy(p, "Salut guys");
-        printf("%ld: %s\n", i, p);
-        printf("%p\n", p);
-        if (i == 98)
-        {
-            my_free(p);
-            printf("Free 98\n");
-            p = NULL;
-        }
-        printf("\n");
-    }
-    
-    // char *first = my_malloc(10);
-    // printf("------------\n");
-    // char *second =  my_malloc(20);
-    
-    // printf("%p\n", first);
-    // printf("%p\n", second);
+	// char *p;
+	// for (size_t i = 0; i < 10; i++)
+	// {
+	// 	if (i % 2 == 0)
+	// 		p = malloc(13);
+	// 	else
+	// 		p = malloc(739);
+	// 	if (!p) 
+	// 		return 1;
+	// 	strcpy(p, "Salut guys");
+	// 	printf("%ld: %s\n%p\n", i, p, p);
+	// 	if (i == 8)
+	// 	{
+	// 		free(p);
+	// 		printf("Free 8\n");
+	// 		p = NULL;
+	// 	}
+	// 	printf("\n");
+	// }
+	// show_alloc_mem();
+	
+	char *first = malloc(sizeof(char) * 5);
+	if (!first)
+	    return 1;
+	strcpy(first, "hey");
+	printf("%p\n", first);
+	printf("%s\n", first);
+	printf("------------\n");
+	char *second =  realloc(first, 20);
+	strcpy(second, "Coucou ca vas ?");
+	printf("%p\n", second);
+	printf("%s\n", second);
+	show_alloc_mem();
 
-    return 0;
+	return 0;
 }

@@ -6,7 +6,7 @@
 #    By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/07 12:48:48 by eburnet           #+#    #+#              #
-#    Updated: 2025/09/09 11:45:35 by eburnet          ###   ########.fr        #
+#    Updated: 2025/09/16 14:55:15 by eburnet          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ HOSTTYPE ?= $(shell uname -m)-$(shell uname -s)
 
 NAME     = libft_malloc_$(HOSTTYPE).so
 ALIAS    = libft_malloc.so
-SRC      = malloc.c
+SRC      = malloc.c free.c realloc.c show_alloc_mem.c
 OBJS     = $(SRC:.c=.o)
 HEADERS  = malloc.h
 
