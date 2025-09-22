@@ -1,0 +1,2 @@
+- Ajouter un mutex global (pthread_mutex_t) et verrouiller/déverrouiller dans malloc, free, realloc et show_alloc_mem.
+- Initialiser le mutex de façon thread-safe (par ex. pthread_mutex_init dans initAllocs ou pthread_once).
