@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 09:58:49 by eburnet           #+#    #+#             */
-/*   Updated: 2025/09/22 10:00:00 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/02 17:19:38 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,6 @@ void *createZone(zones_t *lastZone, int toAlloc, size_t size)
 
 void *malloc(size_t size)
 {
-	ft_printf("my malloc\n");
 	pthread_mutex_lock(&mutex);
 	initAllocs();
 	zones_t *lastZone;

@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 12:47:41 by eburnet           #+#    #+#             */
-/*   Updated: 2025/09/22 10:03:56 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/02 17:05:48 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <sys/mman.h>
 #include <stddef.h>
 #include <pthread.h>
-#include <valgrind/memcheck.h>
+// #include <valgrind/memcheck.h>
 
 #define n 512
 #define m 4096

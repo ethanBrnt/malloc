@@ -36,19 +36,46 @@ int main(void)
 	// 	printf("\n");
 	// }
 	// show_alloc_mem();
-	
+
+	printf("------ Show Alloc Memory ------\n");
+	show_alloc_mem();
+	printf("------ Tiny Malloc ------\n");
 	char *first = malloc(sizeof(char) * 5);
 	if (!first)
-	    return 1;
+		return 1;
 	strcpy(first, "hey");
-	printf("%p\n", first);
-	printf("%s\n", first);
-	printf("------------\n");
-	char *second =  realloc(first, 20);
-	strcpy(second, "Coucou ca vas ?");
-	printf("%p\n", second);
-	printf("%s\n", second);
+	printf("adress: %p\n", first);
+	printf("content: %s\n", first);
+	printf("------ Show Alloc Memory ------\n");
 	show_alloc_mem();
-
+	printf("------ Realloc ------\n");
+	char *second =  realloc(first, 20);
+	if (!second)
+		return 1;
+	strcpy(second, "Coucou ca vas ?");
+	printf("addres: %p\n", second);
+	printf("content: %s\n", second);
+	printf("------ Another Tiny malloc ------\n");
+	char *another = malloc(sizeof(char) * 15);
+	if (!another)
+		return 1;
+	strcpy(another, "Hello world!");
+	printf("addres: %p\n", another);
+	printf("content: %s\n", another);
+	printf("------ Show Alloc Memory ------\n");
+	show_alloc_mem();
+	printf("------ Free ------\n");
+	free(second);
+	free(another);
 	return 0;
 }
+
+// TODO
+// relecture du code 
+// show alloc seems not to work
+// make a loooot of tests
+
+/* 
+cc -g3 main.c -L. -lft_malloc -o test 
+LD_LIBRARY_PATH=. ./test
+*/

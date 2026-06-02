@@ -6,7 +6,7 @@
 #    By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/07 12:48:48 by eburnet           #+#    #+#              #
-#    Updated: 2025/09/16 14:55:15 by eburnet          ###   ########.fr        #
+#    Updated: 2026/06/02 17:30:37 by eburnet          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -44,6 +44,7 @@ clean:
 fclean: clean
 	rm -f $(NAME) $(ALIAS)
 	$(MAKE) -C $(LIBFT_DIR) fclean
+	rm -f malloc.h.gch
 
 re: fclean all
 
