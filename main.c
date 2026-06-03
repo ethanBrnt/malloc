@@ -13,60 +13,45 @@
 #include <stdio.h>
 #include <string.h>
 #include "malloc.h"
+// #include <stdlib.h>
 
 int main(void)
 {
-	// char *p;
-	// for (size_t i = 0; i < 10; i++)
-	// {
-	// 	if (i % 2 == 0)
-	// 		p = malloc(13);
-	// 	else
-	// 		p = malloc(739);
-	// 	if (!p) 
-	// 		return 1;
-	// 	strcpy(p, "Salut guys");
-	// 	printf("%ld: %s\n%p\n", i, p, p);
-	// 	if (i == 8)
-	// 	{
-	// 		free(p);
-	// 		printf("Free 8\n");
-	// 		p = NULL;
-	// 	}
-	// 	printf("\n");
-	// }
-	// show_alloc_mem();
-
 	printf("------ Show Alloc Memory ------\n");
 	show_alloc_mem();
-	printf("------ Tiny Malloc ------\n");
-	char *first = malloc(sizeof(char) * 5);
-	if (!first)
-		return 1;
-	strcpy(first, "hey");
-	printf("adress: %p\n", first);
-	printf("content: %s\n", first);
-	printf("------ Show Alloc Memory ------\n");
+	printf("------ 10 Malloc ------\n");
+	char *p[100];
+	for (size_t i = 0; i < 10; i++)
+	{
+		if (i % 2 == 0)
+			p[i] = malloc(13);
+		else
+			p[i] = malloc(739);
+		if (!p[i]) 
+			return 1;
+		strcpy(p[i], "Salut guys");
+		printf("malloc %ld, string: %s, adrress: %p\n", i, p[i], p[i]);
+		if (i == 8)
+		{
+			free(p[i]);
+			printf("Free 8\n");
+			p[i] = NULL;
+		}
+	}
 	show_alloc_mem();
-	printf("------ Realloc ------\n");
-	char *second =  realloc(first, 20);
-	if (!second)
-		return 1;
-	strcpy(second, "Coucou ca vas ?");
-	printf("addres: %p\n", second);
-	printf("content: %s\n", second);
-	printf("------ Another Tiny malloc ------\n");
-	char *another = malloc(sizeof(char) * 15);
-	if (!another)
-		return 1;
-	strcpy(another, "Hello world!");
-	printf("addres: %p\n", another);
-	printf("content: %s\n", another);
+	printf("------ Large Malloc ------\n");
+	char *large = malloc(sizeof(char) * 5000);
 	printf("------ Show Alloc Memory ------\n");
 	show_alloc_mem();
 	printf("------ Free ------\n");
-	free(second);
-	free(another);
+	for (size_t i = 0; i < 10; i++)
+	{
+		printf("i: %d\n", i);
+		free(p[i]);
+	}
+	free(large);
+	printf("------ Show Alloc Memory ------\n");
+	show_alloc_mem();
 	return 0;
 }
 

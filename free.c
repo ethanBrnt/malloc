@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 14:18:40 by eburnet           #+#    #+#             */
-/*   Updated: 2025/09/17 17:47:02 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/03 15:09:33 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,12 @@ void *findPtr(void *ptr)
 	return (NULL);
 }
 
-int is_zone_freed(zones_t *zone)
+int is_zone_empty(zones_t *zone)
 {
 	header_t *head = zone->header;
 	while (head)
 	{
-		if (head->is_free == 0)
+		if (head->is_free == false)
 			return (0);
 		head = head->next;
 	}
@@ -50,6 +50,7 @@ int is_zone_freed(zones_t *zone)
 
 void free(void *ptr)
 {
+	ft_printf("my free\n");
 	if (ptr == NULL)
 		return ;
 	pthread_mutex_lock(&mutex);
@@ -57,18 +58,18 @@ void free(void *ptr)
 	if (zone == NULL)
 		return (void)(pthread_mutex_unlock(&mutex));
 	header_t *head = (header_t*)ptr - 1;
-	if (head->is_free == 0)
+	if (head->is_free == true)
 		return (void)(pthread_mutex_unlock(&mutex));
-	head->is_free = 1;
-	if (head->size > all->M )
+	head->is_free = true;
+	if (head && head->size <= all->M && is_zone_empty(zone) == 1)
 	{
-		if (munmap(zone->mmapStart, head->size) == -1)
-			ft_printf("Error: munmap failed\n");
+		if (munmap(zone->mmapStart, zone->size) == -1)
+			return (void)(ft_printf("Error: munmap failed\n"));
 	}
-	if (is_zone_freed(zone) == 1)
+	if (head && head->size > all->M)
 	{
-		if (munmap(zone->mmapStart, head->size) == -1)
-			ft_printf("Error: munmap failed\n");
+		if (munmap(zone->mmapStart, zone->size) == -1)
+			return (void)(ft_printf("Error: munmap failed\n"));
 	}
 	pthread_mutex_unlock(&mutex);
 }

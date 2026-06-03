@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 12:47:41 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/02 17:05:48 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/03 12:27:32 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <sys/mman.h>
 #include <stddef.h>
 #include <pthread.h>
-// #include <valgrind/memcheck.h>
+#include <stdbool.h>
 
 #define n 512
 #define m 4096
@@ -44,7 +44,7 @@ typedef struct zones {
 } zones_t;
 
 typedef struct header {
-	int				is_free;
+	bool				is_free;
 	size_t				size;
 	struct header	*next;
 } header_t;
