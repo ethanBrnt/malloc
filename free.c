@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 14:18:40 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/03 15:09:33 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/04 17:08:37 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,11 @@ int is_zone_empty(zones_t *zone)
 	return (1);
 }
 
+// zones_t *findPrevZone(zones_t *actual)
+// {
+	
+// }
+
 void free(void *ptr)
 {
 	ft_printf("my free\n");
@@ -55,19 +60,34 @@ void free(void *ptr)
 		return ;
 	pthread_mutex_lock(&mutex);
 	zones_t *zone = findPtr(ptr);
+	ft_printf("ptr = %p\n", ptr);
+	ft_printf("zone = %p\n", zone);
 	if (zone == NULL)
 		return (void)(pthread_mutex_unlock(&mutex));
 	header_t *head = (header_t*)ptr - 1;
+	ft_printf("sizeof header_t: %zu\n", sizeof(header_t));
+	ft_printf("head->size: %lu\n", (unsigned long)head->size);
+	ft_printf("head addr: %p\n", head);
+	ft_printf("head->is_free: %d\n", head->is_free);
+	ft_printf("head->size: %zu\n", head->size);
+	ft_printf("head->next: %p\n", head->next);
 	if (head->is_free == true)
 		return (void)(pthread_mutex_unlock(&mutex));
-	head->is_free = true;
-	if (head && head->size <= all->M && is_zone_empty(zone) == 1)
+	while (head)
 	{
+		ft_printf("head: %d\n", head->is_free);
+		head = head->next;
+	}
+	head = (header_t*)ptr - 1;
+	head->is_free = true;
+	if (head && head->size <= all->M && is_zone_empty(zone) == 1) {
+		zones_t *prev_zone = findPtr(zone - sizeof(header_t));
+		prev_zone->next = zone->next;
+		ft_printf("after is_zone_empty\n");
 		if (munmap(zone->mmapStart, zone->size) == -1)
 			return (void)(ft_printf("Error: munmap failed\n"));
 	}
-	if (head && head->size > all->M)
-	{
+	else if (head && head->size > all->M) {
 		if (munmap(zone->mmapStart, zone->size) == -1)
 			return (void)(ft_printf("Error: munmap failed\n"));
 	}

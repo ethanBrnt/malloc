@@ -30,7 +30,7 @@ int main(void)
 		if (!p[i]) 
 			return 1;
 		strcpy(p[i], "Salut guys");
-		printf("malloc %ld, string: %s, adrress: %p\n", i, p[i], p[i]);
+		printf("after malloc %ld, string: %s, adrress: %p\n", i, p[i], p[i]);
 		if (i == 8)
 		{
 			free(p[i]);
@@ -46,8 +46,9 @@ int main(void)
 	printf("------ Free ------\n");
 	for (size_t i = 0; i < 10; i++)
 	{
-		printf("i: %d\n", i);
-		free(p[i]);
+		printf("before free i: %d\n", i);
+		if (p[1])
+			free(p[i]);
 	}
 	free(large);
 	printf("------ Show Alloc Memory ------\n");
@@ -56,8 +57,7 @@ int main(void)
 }
 
 // TODO
-// relecture du code 
-// show alloc seems not to work
+// free 
 // make a loooot of tests
 
 /* 
