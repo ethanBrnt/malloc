@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 14:18:40 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/04 17:08:37 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/05 15:44:58 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,48 +48,65 @@ int is_zone_empty(zones_t *zone)
 	return (1);
 }
 
-// zones_t *findPrevZone(zones_t *actual)
-// {
-	
-// }
+zones_t *findPrevZone(zones_t *actual)
+{
+	zones_t *iterate;
+	if (actual->size <= n)
+		iterate = all->tiny;
+	else if (actual->size <= m)
+		iterate = all->small;
+	else 
+		iterate = all->large;
+	while (iterate)
+	{
+		if (iterate->next == actual)
+			return (iterate);
+		iterate = iterate->next;
+	}
+	return (NULL);	
+}
 
 void free(void *ptr)
 {
-	ft_printf("my free\n");
+	// ft_printf("my free\n");
 	if (ptr == NULL)
 		return ;
 	pthread_mutex_lock(&mutex);
 	zones_t *zone = findPtr(ptr);
-	ft_printf("ptr = %p\n", ptr);
-	ft_printf("zone = %p\n", zone);
 	if (zone == NULL)
 		return (void)(pthread_mutex_unlock(&mutex));
+	// if (zone->size <= all->N)
+	// 	ft_printf("tiny free\n");
+	// else if (zone->size <= all->M)
+	// 	ft_printf("small free\n");
+	// else
+	// 	ft_printf("Large free\n");
 	header_t *head = (header_t*)ptr - 1;
-	ft_printf("sizeof header_t: %zu\n", sizeof(header_t));
-	ft_printf("head->size: %lu\n", (unsigned long)head->size);
-	ft_printf("head addr: %p\n", head);
-	ft_printf("head->is_free: %d\n", head->is_free);
-	ft_printf("head->size: %zu\n", head->size);
-	ft_printf("head->next: %p\n", head->next);
 	if (head->is_free == true)
 		return (void)(pthread_mutex_unlock(&mutex));
-	while (head)
-	{
-		ft_printf("head: %d\n", head->is_free);
-		head = head->next;
-	}
-	head = (header_t*)ptr - 1;
 	head->is_free = true;
-	if (head && head->size <= all->M && is_zone_empty(zone) == 1) {
-		zones_t *prev_zone = findPtr(zone - sizeof(header_t));
+	// ft_printf("all tiny: %p, small: %p\n", all->tiny, all->small);
+	zones_t *prev_zone = findPrevZone(zone);
+	if (prev_zone)
 		prev_zone->next = zone->next;
-		ft_printf("after is_zone_empty\n");
-		if (munmap(zone->mmapStart, zone->size) == -1)
-			return (void)(ft_printf("Error: munmap failed\n"));
+	else
+	{
+		if (zone->size <= all->N)
+			all->tiny = zone->next;
+		else if (zone->size <= all->M)
+			all->small = zone->next;
+		else
+			all->large = zone->next;
 	}
-	else if (head && head->size > all->M) {
+	if (head && head->size <= m && is_zone_empty(zone) == 1) {
+		// ft_printf("all tiny: %p, small: %p\n", all->tiny, all->small);
 		if (munmap(zone->mmapStart, zone->size) == -1)
-			return (void)(ft_printf("Error: munmap failed\n"));
+			return (void)(ft_putstr_fd("Error: munmap failed\n", 2));
+	}
+	else if (zone->size > m) {
+		ft_printf("free large munmap\n");
+		if (munmap(zone->mmapStart, zone->size) == -1)
+			return (void)(ft_putstr_fd("Error: munmap failed\n", 2));
 	}
 	pthread_mutex_unlock(&mutex);
 }

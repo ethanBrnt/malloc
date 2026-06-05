@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 09:58:49 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/03 15:43:09 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/05 12:47:13 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void *isZoneFree(int sizeNeed, header_t *actualH)
 	if (toAdd == 8)
 		toAdd = 0;
 	int roundSize = sizeNeed + toAdd;
-	if (actualH->is_free == true && actualH->size >= (size_t)roundSize) {
+	if (actualH->is_free == true && (size_t)roundSize <= actualH->size) {
 		actualH->is_free = false;
 		actualH->size = roundSize;
 		// ft_putstr("findFreeZone return something\n");
@@ -122,10 +122,6 @@ void *createZone(zones_t *lastZone, int toAlloc, size_t size)
 		lastZone->next = newZone;
 	}
 	if ((int)size > m) {
-		// header_t *head = (header_t*)alocZone;
-		// head->is_free = false;
-		// head->size = size;
-		// head->next = NULL;
 		return (pthread_mutex_unlock(&mutex), (char*)alocZone + sizeof(header_t));
 	}
 	else
@@ -149,7 +145,7 @@ void	initAllocs()
 
 void *malloc(size_t size)
 {
-	ft_printf("my malloc\n");
+	// ft_printf("my malloc\n");
 	zones_t *lastZone;
 	int toAlloc;
 	
