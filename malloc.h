@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 12:47:41 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/05 10:37:03 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/09 16:44:40 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,9 @@ typedef struct zones {
 
 typedef struct header {
 	size_t			size;
-	int				is_free;
 	struct header	*next;
+	int				is_free;
+	int				padding[3];
 } header_t;
 
 extern allocs_t *all;

@@ -8,3 +8,7 @@ libft_malloc_x86_64.so
 
 test
 libft/libft.h.gch
+gcc
+test*
+run_linux.sh
+libft_malloc_x86_64-Linux.so

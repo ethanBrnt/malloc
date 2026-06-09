@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 14:18:40 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/08 12:44:22 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/09 09:23:03 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,19 +80,20 @@ void free(void *ptr)
 		return (void)(pthread_mutex_unlock(&mutex));
 	head->is_free = true;
 	// ft_printf("all tiny: %p, small: %p\n", all->tiny, all->small);
-	zones_t *prev_zone = findPrevZone(zone);
-	if (prev_zone)
-		prev_zone->next = zone->next;
-	else
-	{
-		if (type == 0)
-			all->tiny = zone->next;
-		else if (type == 1)
-			all->small = zone->next;
-		else if (type == 2)
-			all->large = zone->next;
-	}
-	if ((head && head->size <= m && is_zone_empty(zone) == 1) || zone->size > m) {
+	if (((type == 0 || type == 1) && is_zone_empty(zone) == 1) || type == 2) {
+		// ft_printf("in the free ZONE zone->size %d, m %d head->size %d\n", zone->size, m, head->size);
+		zones_t *prev_zone = findPrevZone(zone);
+		if (prev_zone)
+			prev_zone->next = zone->next;
+		else
+		{
+			if (type == 0)
+				all->tiny = zone->next;
+			else if (type == 1)
+				all->small = zone->next;
+			else if (type == 2)
+				all->large = zone->next;
+		}
 		if (munmap(zone->mmapStart, zone->size) == -1 || munmap(zone, sizeof(zones_t)) == -1)
 			return (void)(ft_putstr_fd("Error: munmap failed\n", 2));
 	}

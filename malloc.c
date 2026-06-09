@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 09:58:49 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/08 15:26:18 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/09 16:30:43 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,12 @@ void *cutRemaining(header_t *prevHeader, int sizeNeed, zones_t *actualZone)
 	ptrdiff_t remains = ((char*)actualZone->mmapStart + actualZone->size) - (char*)nextFreePos;
 	size_t remaining_space = (size_t)remains;
 
-	int toAdd = 8 - (sizeNeed % 8);
-	if (toAdd == 8)
+	int toAdd = 16 - (sizeNeed % 16);
+	if (toAdd == 16)
 		toAdd = 0;
 	int roundSize = sizeNeed + toAdd;
 	if (remaining_space < (roundSize + sizeof(header_t)))
-	{
 		return (NULL);
-	}
 
 	header_t *newHeader = (header_t *)nextFreePos;
 	newHeader->is_free = false;
@@ -45,8 +43,8 @@ void *cutRemaining(header_t *prevHeader, int sizeNeed, zones_t *actualZone)
 
 void *isZoneFree(int sizeNeed, header_t *actualHead)
 {
-	int toAdd = 8 - (sizeNeed % 8);
-	if (toAdd == 8)
+	int toAdd = 16 - (sizeNeed % 16);
+	if (toAdd == 16)
 		toAdd = 0;
 	int roundSize = sizeNeed + toAdd;
 	if (actualHead->is_free == true && (size_t)roundSize <= actualHead->size) {
@@ -90,11 +88,11 @@ void *findSpace(int sizeNeed)
 	return (NULL);
 }
 
-void *initNewZone(int sizeZoneToAlloc, void *alocZone)
+void *initNewZone(size_t sizeZoneToAlloc, void *alocZone)
 {
 	zones_t *newZone = mmap(NULL, sizeof(zones_t), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 	if (newZone == MAP_FAILED)
-		return(ft_putstr_fd("Error: mmap newzone", 2), pthread_mutex_unlock(&mutex), NULL);
+		return(pthread_mutex_unlock(&mutex), NULL);
 	newZone->mmapStart = alocZone;
 	newZone->size = sizeZoneToAlloc;
 	newZone->header = NULL;
@@ -102,13 +100,15 @@ void *initNewZone(int sizeZoneToAlloc, void *alocZone)
 	return (newZone);
 }
 
-void *createZone(zones_t *lastZone, int sizeZoneToAlloc, size_t size)
+void *createZone(zones_t *lastZone, size_t sizeZoneToAlloc, size_t size)
 {
 	// ft_printf("_New mmap zone_ %d\n", sizeZoneToAlloc);
 	void *alocZone = mmap(NULL, sizeZoneToAlloc, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 	if (alocZone == MAP_FAILED)
-		return (ft_putstr_fd("Error: mmap alocZone", 2), pthread_mutex_unlock(&mutex), NULL);
+		return (pthread_mutex_unlock(&mutex), NULL);
 	zones_t *newZone = initNewZone(sizeZoneToAlloc, alocZone);
+	if (newZone == NULL)
+		return (NULL);
 	if (lastZone == NULL) {
 		if ((int)size <= n)
 			all->tiny = newZone;
@@ -128,38 +128,40 @@ void *createZone(zones_t *lastZone, int sizeZoneToAlloc, size_t size)
 		return(pthread_mutex_unlock(&mutex), findSpace(size));
 }
 
-void	initAllocs()
+int	initAllocs()
 {
 	const long pageSize = sysconf(_SC_PAGESIZE);
 	if (!all) {
 		all = mmap(NULL, sizeof(allocs_t), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 		if (all == MAP_FAILED)
-			return (void)(ft_putstr_fd("Error: mmap struc alloc", 2), pthread_mutex_unlock(&mutex));
+			return (pthread_mutex_unlock(&mutex), -1);
 		all->tiny = NULL;
 		all->small = NULL;
 		all->large = NULL;
 		all->N = ((((n + sizeof(header_t)) * 100) + pageSize - 1) / pageSize) * pageSize; // n x100 arrondie au superieur
 		all->M = ((((m + sizeof(header_t)) * 100) + pageSize - 1) / pageSize) * pageSize; // m x100 arrondie au superieur
 	}
+	return (0);
 }
 
 void *malloc(size_t size)
 {
 	// ft_printf("my malloc %d\n", size);
 	zones_t *lastZone;
-	int sizeZoneToAlloc;
+	size_t sizeZoneToAlloc;
 	
 	pthread_mutex_lock(&mutex);
-	initAllocs();
+	if (initAllocs() == -1)
+		return (NULL);
 	if (size <= 0)
 		return (pthread_mutex_unlock(&mutex), NULL);
-	if ((int)size <= n)
+	if (size <= (size_t)n)
 		sizeZoneToAlloc = all->N, lastZone = all->tiny;
-	else if ((int)size > n && (int)size <= m)
+	else if (size > (size_t)n && size <= (size_t)m)
 		sizeZoneToAlloc = all->M, lastZone = all->small;
-	else if ((int)size > m)
+	else if (size > (size_t)m)
 		sizeZoneToAlloc = size + sizeof(header_t), lastZone = all->large;
-	if ((int)size <= m)	{
+	if (size <= (size_t)m)	{
 		void *res = findSpace(size);
 		if (res != NULL)
 			return (pthread_mutex_unlock(&mutex), res);

@@ -6,7 +6,7 @@
 #    By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/07 12:48:48 by eburnet           #+#    #+#              #
-#    Updated: 2026/06/02 17:30:37 by eburnet          ###   ########.fr        #
+#    Updated: 2026/06/09 11:45:58 by eburnet          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ SRC      = malloc.c free.c realloc.c show_alloc_mem.c
 OBJS     = $(SRC:.c=.o)
 HEADERS  = malloc.h
 
-CC       = cc
+CC       = gcc
 CFLAGS   = -Wall -Wextra -Werror -fPIC -g3
 LIBFT_DIR = ./libft
 LIBFT     = $(LIBFT_DIR)/libft.a
