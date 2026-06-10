@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 09:58:49 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/09 16:30:43 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/10 13:54:34 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void *initNewZone(size_t sizeZoneToAlloc, void *alocZone)
 {
 	zones_t *newZone = mmap(NULL, sizeof(zones_t), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 	if (newZone == MAP_FAILED)
-		return(pthread_mutex_unlock(&mutex), NULL);
+		return(NULL);
 	newZone->mmapStart = alocZone;
 	newZone->size = sizeZoneToAlloc;
 	newZone->header = NULL;
@@ -108,7 +108,7 @@ void *createZone(zones_t *lastZone, size_t sizeZoneToAlloc, size_t size)
 		return (pthread_mutex_unlock(&mutex), NULL);
 	zones_t *newZone = initNewZone(sizeZoneToAlloc, alocZone);
 	if (newZone == NULL)
-		return (NULL);
+		return (pthread_mutex_unlock(&mutex), NULL);
 	if (lastZone == NULL) {
 		if ((int)size <= n)
 			all->tiny = newZone;

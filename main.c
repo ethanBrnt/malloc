@@ -22,45 +22,9 @@
     #include "malloc.h"
 #endif
 
-typedef struct {
-	int thread_id;
-	int num_allocs;
-	size_t alloc_size;
-	int use_realloc;
-} ThreadArgs;
-
-void *thread_function(void *arg) {
-	ThreadArgs *args = (ThreadArgs *)arg;
-	void **ptrs = malloc(args->num_allocs * sizeof(void *));
-	if (!ptrs) {
-		ft_putstr("malloc failed in thread\n");
-		return NULL;
-	}
-
-	for (int i = 0; i < args->num_allocs; i++) {
-		if (args->use_realloc && i > 0) {
-			ptrs[i] = realloc(ptrs[i-1], args->alloc_size * (i + 1));
-		} else {
-			ptrs[i] = malloc(args->alloc_size);
-		}
-		if (!ptrs[i]) {
-			ft_putstr("malloc/realloc failed in thread\n");
-			break;
-		}
-		usleep(10);
-	}
-
-	for (int i = 0; i < args->num_allocs; i++) {
-		if (ptrs && ptrs[i]) {
-			free(ptrs[i]);
-		}
-	}
-
-	free(ptrs);
-	return NULL;
-}
-
 int main() {
+	ft_putstr("\n\n\n###### MALLOC ######\n");
+
 	ft_putstr("\n--- Test 1 : show mem initial ---\n");
 	show_alloc_mem();
 
@@ -181,34 +145,112 @@ int main() {
 	show_alloc_mem();
 
 
-	ft_putstr("\n\n--- Test 8 : realloc tiny -> small ---\n");
+	ft_putstr("\n\n--- Test 8 : more than 100 allocs ---\n");
+	char *tab[250];
+	for (size_t i = 0; i < 110; i++)
+		tab[i] = malloc(sizeof(char) * 512);
+	show_alloc_mem();
+	ft_putstr("\n--- Free all ---\n");
+	for (size_t i = 0; i < 110; i++)
+		free(tab[i]);
+	show_alloc_mem();
+
+
+	ft_putstr("\n\n--- Test 9 : malloc to big value ---\n");
+	char *tobig = malloc(1844674407379551615);
+	if (!tobig)
+		ft_putstr("tobig is NULL\n");
+
+
+
+	ft_putstr("\n\n\n###### FREE ######\n");
+
+	ft_putstr("\n\n--- Test 1 : free NULL ---\n");
+	free(NULL);
+
+	// free ptr non valide
+	// free already free
+
+
+
+	ft_putstr("\n\n\n###### REALLOC ######\n");
+
+
+	ft_putstr("\n\n--- Test 1 : realloc > content check ---\n");
+	void *realloc_content = malloc(16);
+	ft_putstr("strcpy: ");
+	ft_putstr(strcpy(realloc_content, "hello world"));
+	ft_putstr("\n");
+	show_alloc_mem();
+	realloc_content = realloc(realloc_content, 312);
+
+	ft_putstr("\n--- After realloc ---\n");
+	ft_putstr("realloced var: ");
+	ft_putstr(realloc_content);
+	ft_putstr("\n");
+	show_alloc_mem();
+	free(realloc_content);
+
+
+	ft_putstr("\n\n--- Test 2 : realloc < content check ---\n");
+	realloc_content = malloc(26);
+	ft_putstr("strcpy: ");
+	ft_putstr(strcpy(realloc_content, "hello"));
+	ft_putstr("\n");
+	show_alloc_mem();
+	realloc_content = realloc(realloc_content, 6);
+
+	ft_putstr("\n--- After realloc ---\n");
+	ft_putstr("realloced var: ");
+	ft_putstr(realloc_content);
+	ft_putstr("\n");
+	show_alloc_mem();
+	free(realloc_content);
+
+
+	ft_putstr("\n\n--- Test 4 : realloc tiny -> small ---\n");
 	void *realloc_tiny = malloc(16);
+	ft_putstr(strcpy(realloc_tiny, "HEyy"));
+	ft_putstr("\n");
 	show_alloc_mem();
 	realloc_tiny = realloc(realloc_tiny, 514);
+
 	ft_putstr("\n--- After realloc ---\n");
+	ft_putstr(realloc_tiny);
+	ft_putstr("\n");
 	show_alloc_mem();
 	free(realloc_tiny);
 
 
-	ft_putstr("\n\n--- Test 9 : realloc small -> large ---\n");
-	void *realloc_small = malloc(514);
+	ft_putstr("\n\n--- Test 5 : realloc small -> large ---\n");
+	void *realloc_small = malloc(800);
+	ft_putstr(strcpy(realloc_small, "Article evident arrived express highest men did boy. Mistress sensible entirely am so. Quick can manor smart money hopes worth too. Comfort produce husband boy her had hearing. Law others theirs passed but wishes. You day real less till dear read. Considered use dispatched melancholy sympathize discretion led. Oh feel if up to till like.Article evident arrived express highest men did boy. Mistress sensible entirely am so. Quick can manor smart money hopes worth too. Comfort produce husband boy her had hearing. Law others theirs passed but wishes. You day real less till dear read. Considered use dispatched melancholy sympathize discretion led. Oh feel if up to till like."));
+	ft_putstr("\n");
 	show_alloc_mem();
 	realloc_small = realloc(realloc_small, 5096);
+
 	ft_putstr("\n--- After realloc ---\n");
+	ft_putstr(realloc_small);
+	ft_putstr("\n");
 	show_alloc_mem();
 	free(realloc_small);
 
 
 	ft_putstr("\n\n--- Test 10 : realloc large -> tiny ---\n");
 	void *realloc_large = malloc(5096);
+	ft_putstr(strcpy(realloc_large, "Article evident arrived express highest men did boy. Mistress sensible entirely am so. Quick can manor smart money hopes worth too. Comfort produce husband boy her had hearing. Law others theirs passed but wishes. You day real less till dear read. Considered use dispatched melancholy sympathize discretion led. Oh feel if up to till like.Article evident arrived express highest men did boy. Mistress sensible entirely am so. Quick can manor smart money hopes worth too. Comfort produce husband boy her had hearing. Law others theirs passed but wishes. You day real less till dear read. Considered use dispatched melancholy sympathize discretion led. Oh feel if up to till like."));
+	ft_putstr("\n");
 	show_alloc_mem();
 	realloc_large = realloc(realloc_large, 16);
+
 	ft_putstr("\n--- After realloc ---\n");
+	ft_putstr(realloc_large);
+	ft_putstr("\n");
 	show_alloc_mem();
 	free(realloc_large);
 
 
-	ft_putstr("\n\n--- Test 11 : realloc NULL ---\n");
+	ft_putstr("\n\n--- Test 11 : realloc ptr NULL ---\n");
 	show_alloc_mem();
 	void *realloc_null = realloc(NULL, 16);
 	ft_putstr("\n--- After realloc ---\n");
@@ -221,33 +263,9 @@ int main() {
 	void *realloc_zero = malloc(16);
 	show_alloc_mem();
 	realloc_zero = realloc(realloc_zero, 0);
+
 	ft_putstr("\n--- After realloc ---\n");
 	show_alloc_mem();
-
-
-	ft_putstr("\n\n--- Test 13 : more than 100 allocs ---\n");
-	char *tab[250];
-	for (size_t i = 0; i < 110; i++)
-		tab[i] = malloc(sizeof(char) * 512);
-	show_alloc_mem();
-	ft_putstr("\n--- Free all ---\n");
-	for (size_t i = 0; i < 110; i++)
-		free(tab[i]);
-	show_alloc_mem();
-
-	ft_putstr("\n--- Allocation post-Test 13 (Le crash test) ---\n");
-	void *ptr_test = malloc(16); 
-	show_alloc_mem();
-	free(ptr_test);
-
-
-	ft_putstr("\n\n--- Test 14 : free NULL ---\n");
-	free(NULL);
-
-	ft_putstr("\n\n--- Test 15 : malloc to big value ---\n");
-	char *tobig = malloc(1844674407379551615);
-	if (!tobig)
-		ft_putstr("tobig is NULL\n");
 
 
 	ft_putstr("\n\n--- Test 16 : realloc avec same size ---\n");
@@ -255,43 +273,15 @@ int main() {
 	memset(realloc_same_size, 'A', 16);
 	show_alloc_mem();
 	realloc_same_size = realloc(realloc_same_size, 16);
+
 	ft_putstr("\n--- After realloc ---\n");
 	ft_putstr(realloc_same_size);
 	ft_putstr("\n");
 	show_alloc_mem();
+	free(realloc_same_size);
 
-
-	ft_putstr("\n--- Test 13 : Allocations parallèles (tiny, small, large) ---\n");
-	const int NUM_THREADS = 3;
-	pthread_t threads[NUM_THREADS];
-	ThreadArgs args[NUM_THREADS];
-
-	for (int i = 0; i < NUM_THREADS; i++) {
-		args[i].thread_id = i;
-		args[i].num_allocs = 5;
-		args[i].alloc_size = (i == 0) ? 16 : (i == 1) ? 514 : 4096; // tiny, small, large
-		args[i].use_realloc = 0;
-		pthread_create(&threads[i], NULL, thread_function, &args[i]);
-	}
-
-	for (int i = 0; i < NUM_THREADS; i++) {
-		pthread_join(threads[i], NULL);
-	}
-	show_alloc_mem();
-
-	ft_putstr("\n--- Test 14 : Réallocations parallèles ---\n");
-	for (int i = 0; i < NUM_THREADS; i++) {
-		args[i].thread_id = i;
-		args[i].num_allocs = 5;
-		args[i].alloc_size = 16;
-		args[i].use_realloc = 1;
-		pthread_create(&threads[i], NULL, thread_function, &args[i]);
-	}
-
-	for (int i = 0; i < NUM_THREADS; i++) {
-		pthread_join(threads[i], NULL);
-	}
-	show_alloc_mem();
+	// test realloc all size
+	// malloc 0 pointeur vers zone de 0
 
 	ft_putstr("\n=== Fin des tests ===\n");
 	return 0;
@@ -311,8 +301,3 @@ bt
 frame <num>
 print <var>
 */
-
-
-// TODO test realloc avec ocntenu av ap 
-// test realloc all size
-// malloc 0 pointeur vers zone de 0

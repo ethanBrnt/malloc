@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 15:05:22 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/09 15:50:37 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/10 13:58:38 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,26 +33,35 @@ void *realloc(void *ptr, size_t size)
 		return (malloc(size));    
 	else if (size == 0)
 		return (free(ptr), NULL);
+	pthread_mutex_lock(&mutex);
+	size_t copy_size;
 	header_t *head = (header_t*)ptr - 1;
 	zones_t *zone = get_zone_from_ptr(ptr);
-	if (size <= head->size)
-		return (ptr);
-	else {
-		void *new_ptr = malloc(size);
-		pthread_mutex_lock(&mutex);
-		size_t copy_size;
+	if (zone == NULL)
+	{
 		if (head->size < size)
-		{
-			if (zone != NULL)
-				copy_size = zone->size;
-			else
-				copy_size = head->size;
-		}
+			copy_size = head->size;
+		else if (head->size == size)
+			return (pthread_mutex_unlock(&mutex), ptr);
 		else
 			copy_size = size;
-		ft_memcpy(new_ptr, ptr, copy_size);
-		pthread_mutex_unlock(&mutex);
-		free(ptr);
-		return (new_ptr);
 	}
+	else
+	{
+		if (zone->size < size)
+			copy_size = zone->size;
+		else if (zone->size == size)
+			return (pthread_mutex_unlock(&mutex), ptr);
+		else
+			copy_size = size;
+	}
+
+	pthread_mutex_unlock(&mutex);
+	void *new_ptr = malloc(size);
+	pthread_mutex_lock(&mutex);
+
+	ft_memcpy(new_ptr, ptr, copy_size);
+	pthread_mutex_unlock(&mutex);
+	free(ptr);
+	return (new_ptr);
 }

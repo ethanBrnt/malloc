@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 15:06:06 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/08 12:52:25 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/10 09:22:07 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void show_alloc_mem()
 	while (largeZone) {
 		ft_printf("LARGE: %p\n", largeZone->mmapStart);
 		size_t size = largeZone->size;
-		void *start = (char*)largeZone + sizeof(zones_t);
+		void *start = (char*)largeZone->mmapStart;
 		void *end = (char*)start + size;
 		ft_printf("%p - %p : %d bytes\n", start, end, size);
 		total = total + size;

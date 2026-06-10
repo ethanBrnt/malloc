@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 14:18:40 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/09 09:23:03 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/10 13:53:13 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,10 +75,13 @@ void free(void *ptr)
 	if (zone == NULL)
 		return (void)(pthread_mutex_unlock(&mutex));
 
-	header_t *head = (header_t*)ptr - 1;
-	if (head->is_free == true)
-		return (void)(pthread_mutex_unlock(&mutex));
-	head->is_free = true;
+	if (type == 0 || type == 1)
+	{
+		header_t *head = (header_t*)ptr - 1;
+		if (head->is_free == true)
+			return (void)(pthread_mutex_unlock(&mutex));
+		head->is_free = true;
+	}
 	// ft_printf("all tiny: %p, small: %p\n", all->tiny, all->small);
 	if (((type == 0 || type == 1) && is_zone_empty(zone) == 1) || type == 2) {
 		// ft_printf("in the free ZONE zone->size %d, m %d head->size %d\n", zone->size, m, head->size);
@@ -95,7 +98,7 @@ void free(void *ptr)
 				all->large = zone->next;
 		}
 		if (munmap(zone->mmapStart, zone->size) == -1 || munmap(zone, sizeof(zones_t)) == -1)
-			return (void)(ft_putstr_fd("Error: munmap failed\n", 2));
+			return (void)(pthread_mutex_unlock(&mutex));
 	}
 	pthread_mutex_unlock(&mutex);
 }
