@@ -168,13 +168,19 @@ int main() {
 	ft_putstr("\n\n--- Test 1 : free NULL ---\n");
 	free(NULL);
 
+	ft_putstr("\n\n--- Test 2 : double free ---\n");
+	void *double_free = malloc(514);
+	free(double_free);
+	free(double_free);
+
+	ft_putstr("\n\n--- Test 3 : free invalid pointer ---\n");
+	char c = 'a';
+	free(&c);
 	// free ptr non valide
-	// free already free
 
 
 
 	ft_putstr("\n\n\n###### REALLOC ######\n");
-
 
 	ft_putstr("\n\n--- Test 1 : realloc > content check ---\n");
 	void *realloc_content = malloc(16);
@@ -208,7 +214,7 @@ int main() {
 	free(realloc_content);
 
 
-	ft_putstr("\n\n--- Test 4 : realloc tiny -> small ---\n");
+	ft_putstr("\n\n--- Test 3 : realloc tiny -> small ---\n");
 	void *realloc_tiny = malloc(16);
 	ft_putstr(strcpy(realloc_tiny, "HEyy"));
 	ft_putstr("\n");
@@ -222,7 +228,7 @@ int main() {
 	free(realloc_tiny);
 
 
-	ft_putstr("\n\n--- Test 5 : realloc small -> large ---\n");
+	ft_putstr("\n\n--- Test 4 : realloc small -> large ---\n");
 	void *realloc_small = malloc(800);
 	ft_putstr(strcpy(realloc_small, "Article evident arrived express highest men did boy. Mistress sensible entirely am so. Quick can manor smart money hopes worth too. Comfort produce husband boy her had hearing. Law others theirs passed but wishes. You day real less till dear read. Considered use dispatched melancholy sympathize discretion led. Oh feel if up to till like.Article evident arrived express highest men did boy. Mistress sensible entirely am so. Quick can manor smart money hopes worth too. Comfort produce husband boy her had hearing. Law others theirs passed but wishes. You day real less till dear read. Considered use dispatched melancholy sympathize discretion led. Oh feel if up to till like."));
 	ft_putstr("\n");
@@ -236,7 +242,7 @@ int main() {
 	free(realloc_small);
 
 
-	ft_putstr("\n\n--- Test 10 : realloc large -> tiny ---\n");
+	ft_putstr("\n\n--- Test 5 : realloc large -> tiny ---\n");
 	void *realloc_large = malloc(5096);
 	ft_putstr(strcpy(realloc_large, "Article evident arrived express highest men did boy. Mistress sensible entirely am so. Quick can manor smart money hopes worth too. Comfort produce husband boy her had hearing. Law others theirs passed but wishes. You day real less till dear read. Considered use dispatched melancholy sympathize discretion led. Oh feel if up to till like.Article evident arrived express highest men did boy. Mistress sensible entirely am so. Quick can manor smart money hopes worth too. Comfort produce husband boy her had hearing. Law others theirs passed but wishes. You day real less till dear read. Considered use dispatched melancholy sympathize discretion led. Oh feel if up to till like."));
 	ft_putstr("\n");
@@ -250,7 +256,7 @@ int main() {
 	free(realloc_large);
 
 
-	ft_putstr("\n\n--- Test 11 : realloc ptr NULL ---\n");
+	ft_putstr("\n\n--- Test 6 : realloc ptr NULL ---\n");
 	show_alloc_mem();
 	void *realloc_null = realloc(NULL, 16);
 	ft_putstr("\n--- After realloc ---\n");
@@ -259,7 +265,7 @@ int main() {
 	free(realloc_null);
 
 
-	ft_putstr("\n\n--- Test 12 : realloc avec 0 ---\n");
+	ft_putstr("\n\n--- Test 7 : realloc avec 0 ---\n");
 	void *realloc_zero = malloc(16);
 	show_alloc_mem();
 	realloc_zero = realloc(realloc_zero, 0);
@@ -268,7 +274,7 @@ int main() {
 	show_alloc_mem();
 
 
-	ft_putstr("\n\n--- Test 16 : realloc avec same size ---\n");
+	ft_putstr("\n\n--- Test 8 : realloc avec same size ---\n");
 	void *realloc_same_size = malloc(16);
 	memset(realloc_same_size, 'A', 16);
 	show_alloc_mem();
@@ -279,9 +285,6 @@ int main() {
 	ft_putstr("\n");
 	show_alloc_mem();
 	free(realloc_same_size);
-
-	// test realloc all size
-	// malloc 0 pointeur vers zone de 0
 
 	ft_putstr("\n=== Fin des tests ===\n");
 	return 0;
