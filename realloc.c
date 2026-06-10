@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 15:05:22 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/10 13:58:38 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/10 17:59:02 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 zones_t *get_zone_from_ptr(void *ptr)
 {
-	zones_t *current = all->large; 
+	zones_t *current = all.large; 
 
 	while (current)
 	{

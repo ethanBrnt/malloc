@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 14:18:40 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/10 13:53:13 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/10 17:59:00 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@ zones_t *findPrevZone(zones_t *actual)
 {
 	zones_t *iterate;
 	if (actual->size <= n)
-		iterate = all->tiny;
+		iterate = all.tiny;
 	else if (actual->size <= m)
-		iterate = all->small;
+		iterate = all.small;
 	else 
-		iterate = all->large;
+		iterate = all.large;
 	while (iterate)
 	{
 		if (iterate->next == actual)
@@ -42,24 +42,53 @@ zones_t *findPrevZone(zones_t *actual)
 	return (NULL);	
 }
 
+bool ft_is_only_zone(zones_t *zone, int type)
+{
+	if (type == 0 && all.tiny == zone && zone->next == NULL)
+		return (true);
+	else if (type == 1 && all.small == zone && zone->next == NULL)
+		return (true);
+	return (false);
+}
+
+void	ft_unmap(int type, zones_t *zone)
+{
+	if (((type == 0 || type == 1) && is_zone_empty(zone) == 1) || type == 2) {
+		zones_t *prev_zone = findPrevZone(zone);
+		if (prev_zone)
+			prev_zone->next = zone->next;
+		else
+		{
+			if (type == 0)
+				all.tiny = zone->next;
+			else if (type == 1)
+				all.small = zone->next;
+			else if (type == 2)
+				all.large = zone->next;
+		}
+		if (munmap(zone->mmapStart, zone->size) == -1 || munmap(zone, sizeof(zones_t)) == -1)
+			return (void)(pthread_mutex_unlock(&mutex));
+	}
+}
+
 void free(void *ptr)
 {
 	zones_t *zone = NULL;
 	zones_t *iterateZone = NULL;
 	int type = -1;
+	bool is_only_zone = false;
 
-	// ft_printf("my free\n");
 	if (ptr == NULL)
 		return ;
 	pthread_mutex_lock(&mutex);
 	for (size_t i = 0; i < 3; i++)
 	{
 		if (i == 0)
-			iterateZone = all->tiny;
+			iterateZone = all.tiny;
 		else if (i == 1)
-			iterateZone = all->small;
+			iterateZone = all.small;
 		else
-			iterateZone = all->large;
+			iterateZone = all.large;
 		while (iterateZone)
 		{
 			void *start = iterateZone->mmapStart;
@@ -68,6 +97,7 @@ void free(void *ptr)
 			{
 				zone = iterateZone;
 				type = i;
+				is_only_zone = ft_is_only_zone(zone, type);
 			}
 			iterateZone = iterateZone->next;
 		}
@@ -82,23 +112,7 @@ void free(void *ptr)
 			return (void)(pthread_mutex_unlock(&mutex));
 		head->is_free = true;
 	}
-	// ft_printf("all tiny: %p, small: %p\n", all->tiny, all->small);
-	if (((type == 0 || type == 1) && is_zone_empty(zone) == 1) || type == 2) {
-		// ft_printf("in the free ZONE zone->size %d, m %d head->size %d\n", zone->size, m, head->size);
-		zones_t *prev_zone = findPrevZone(zone);
-		if (prev_zone)
-			prev_zone->next = zone->next;
-		else
-		{
-			if (type == 0)
-				all->tiny = zone->next;
-			else if (type == 1)
-				all->small = zone->next;
-			else if (type == 2)
-				all->large = zone->next;
-		}
-		if (munmap(zone->mmapStart, zone->size) == -1 || munmap(zone, sizeof(zones_t)) == -1)
-			return (void)(pthread_mutex_unlock(&mutex));
-	}
+	if (is_only_zone == false)
+		ft_unmap(type, zone);
 	pthread_mutex_unlock(&mutex);
 }

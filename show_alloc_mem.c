@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/15 15:06:06 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/10 09:22:07 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/10 18:00:11 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,10 @@ int print_zone(zones_t *actual, char *zoneName)
 void show_alloc_mem()
 {
 	int total = 0;
-	if (!all)
-		return (void)(ft_printf("No alloc\n"));
 	pthread_mutex_lock(&mutex);
-	total = total + print_zone(all->tiny, "TINY");
-	total = total + print_zone(all->small, "SMALL");
-	zones_t *largeZone = all->large;
+	total = total + print_zone(all.tiny, "TINY");
+	total = total + print_zone(all.small, "SMALL");
+	zones_t *largeZone = all.large;
 	while (largeZone) {
 		ft_printf("LARGE: %p\n", largeZone->mmapStart);
 		size_t size = largeZone->size;
