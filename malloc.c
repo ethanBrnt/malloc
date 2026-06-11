@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 09:58:49 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/10 18:16:29 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/11 09:32:29 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,8 +151,6 @@ void *malloc(size_t size)
 	
 	pthread_mutex_lock(&mutex);
 	if (initAllocs() == -1)
-		return (pthread_mutex_unlock(&mutex), NULL);
-	if (size <= 0)
 		return (pthread_mutex_unlock(&mutex), NULL);
 	if (size <= (size_t)n)
 		sizeZoneToAlloc = all.N, lastZone = all.tiny;

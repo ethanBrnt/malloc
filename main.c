@@ -6,7 +6,7 @@
 /*   By: eburnet <eburnet@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/10 17:46:39 by eburnet           #+#    #+#             */
-/*   Updated: 2026/06/10 18:03:16 by eburnet          ###   ########.fr       */
+/*   Updated: 2026/06/11 09:33:23 by eburnet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,10 @@ int main() {
 
 	ft_printf("\n\n--- Test 2 : malloc 0 ---\n");
 	void *ptr0 = malloc(0);
+	if (ptr0 == NULL)
+		ft_printf("ptr is NULL\n");
+	else
+		ft_printf("ptr is addr\n");
 	show_alloc_mem();
 	free(ptr0);
 
